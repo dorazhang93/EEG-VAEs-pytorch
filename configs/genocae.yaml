@@ -1,0 +1,33 @@
+model_params:
+  name: 'GenoCAE'
+  in_channels: 2
+  latent_dim: 5
+  in_dim: 150466
+  hidden_dim: 75
+  noise_std: 0.032
+  reg_factor: 1.0e-8
+  sparsify: 0.4
+
+
+
+data_params:
+  data_path: "/home/etlar/daqu/Projects/genome/data/aDNA/new_data_1Feb_Daqu/TPS2_slim/"
+  data_name: "TPS2_mind5_ex_2233modern_maf05MF"
+  train_batch_size: 48
+  val_batch_size:  40
+  num_workers: 4
+
+
+exp_params:
+  LR: 0.001
+  weight_decay: 0.0
+  scheduler_gamma: 0.992
+  manual_seed: 1265
+
+trainer_params:
+  gpus: [0]
+  max_epochs: 350
+
+logging_params:
+  save_dir: "outputs/"
+
