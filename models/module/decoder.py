@@ -42,19 +42,12 @@ class ConvDecoder(nn.Module):
             nn.Conv1d(in_channels=8,out_channels=out_channel,kernel_size=1),
             nn.Flatten(),
         )
-        self.ms1 = ms1
-        self.ms2 = ms2
     def forward(self, z):
         batch_size = z.shape[0]
         device = z.device
         x = self.decoder1(z)
-        # print(x.shape)
-        # x = torch.cat((x,(self.ms1.tile(batch_size,1)).view(-1,2,int(self.out_dim/2)).to(device)),dim=1)
         x = self.decoder2(x)
-        # print(x.shape)
-        # x = torch.cat((x,(self.ms2.tile(batch_size,1)).view(-1,1,self.out_dim).to(device)),dim=1)
         x = self.decoder3(x)
-        # print(x.shape)
 
         return x
 

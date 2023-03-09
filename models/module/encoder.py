@@ -12,7 +12,8 @@ class ConvEncoder(nn.Module):
     def __init__(self,
                  in_channel: int,
                  in_dim: int,
-                 hidden_dim: int):
+                 hidden_dim: int = 75,
+                 latent_dim: int = 2):
         super(ConvEncoder,self).__init__()
         # Build Encoder
         self.encoder = nn.Sequential(
@@ -26,6 +27,7 @@ class ConvEncoder(nn.Module):
             nn.Dropout(p=0.01),
             nn.Linear(hidden_dim,hidden_dim),
             nn.ELU(),
+            nn.Linear(hidden_dim, latent_dim*2)
         )
 
     def forward(self, input: Tensor):

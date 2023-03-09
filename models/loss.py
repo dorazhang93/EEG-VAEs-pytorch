@@ -1,12 +1,15 @@
 from torch.nn import functional as F
 import torch
 
-def alfreqvector(y_pred):
-    n,l = y_pred.shape
-    alfreq = torch.sigmoid(y_pred).view(n,l,1)
-    return torch.cat(((1-alfreq)**2,2*alfreq*(1-alfreq),alfreq**2), dim=2)
+def reconstruction_loss(recons, input):
+    recons_loss = F.mse_loss(recons, input)
+    return recons_loss
 
-def y_onehot(y_true):
-    y_true = F.one_hot((y_true * 2).long(), num_classes=3)
-    return y_true
+def KLD_loss(latent_dist):
+    mu , logvar = latent_dist
+    kld_loss = torch.mean(-0.5 * torch.mean(1 + logvar - mu ** 2 - logvar.exp(), dim=1), dim=0)
+    return kld_loss
 
+def regulization_loss(z, reg_factor):
+    reg_loss = reg_factor * torch.mean(z ** 2)
+    return reg_loss

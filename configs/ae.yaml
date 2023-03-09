@@ -1,6 +1,6 @@
 model_params:
   name: 'GenoCAE'
-  in_channels: 2
+  in_channels: 1
   latent_dim: 5
   in_dim: 150466
   hidden_dim: 75

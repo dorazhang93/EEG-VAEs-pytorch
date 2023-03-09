@@ -18,7 +18,7 @@ def load_config(argv=None):
                         dest="filename",
                         metavar='FILE',
                         help='path to the config file',
-                        default='configs/genocae.yaml')
+                        default='configs/ae.yaml')
     if argv is None:
         argv = sys.argv[1:]
     args = parser.parse_args(argv)

@@ -44,7 +44,6 @@ class ConvBlock(nn.Module):
     def forward(self, input):
         # print("****")
         # print(input.type())
-        #
         x= self.conv(input)
         if self.activate is not None:
             x= self.activate(x)

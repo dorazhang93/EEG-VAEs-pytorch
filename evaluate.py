@@ -1,5 +1,5 @@
 import numpy as np
-from project import inference_all, inference_val_missing
+from project import inference
 import seaborn as sns
 from sklearn.model_selection import train_test_split, cross_validate, ShuffleSplit
 from sklearn.ensemble import RandomForestRegressor
@@ -25,14 +25,6 @@ idx = np.arange(Y.shape[0])
 _,_,idx_train,idx_test = train_test_split(idx,idx,test_size=0.15,random_state=rng)
 
 
-def eval_missing_imputation():
-    sparsifies = np.linspace(0.1,1.0,10)
-    mf_errors, AE_errors, miss_rates = inference_val_missing(sparsifies)
-    fig, ax = plt.subplots(1,1)
-    plt.plot(miss_rates,mf_errors,label="MSE(most frequent imputation)")
-    plt.plot(miss_rates,AE_errors,label="MSE(AE imputaion)")
-    plt.legend()
-    plt.savefig(out_dir/"imputation_error.png")
 
 def eval_time_regression():
     model = RandomForestRegressor(random_state=rng)
@@ -53,6 +45,5 @@ def eval_location_regression():
     return
 
 if __name__=="__main__":
-    # eval_missing_imputation()
     eval_time_regression()
     eval_location_regression()
