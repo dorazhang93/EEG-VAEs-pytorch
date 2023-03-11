@@ -31,20 +31,18 @@ class ConvDecoder(nn.Module):
             nn.Unflatten(1,(8,int(out_dim/2))),
         )
         self.decoder2 = nn.Sequential(
-            ConvBlock(8,8,5),
+            ConvBlock(8,16,5),
             nn.Upsample(scale_factor=2),
-            ResidualBlock(in_channel=8,out_channel=8,kernel_size=5,num_layer=2),
-            nn.Conv1d(in_channels=8,out_channels=8,kernel_size=5,padding=2),
+            ResidualBlock(in_channel=16,out_channel=16,kernel_size=5,num_layer=2),
+            nn.Conv1d(in_channels=16,out_channels=16,kernel_size=5,padding=2),
             nn.ELU()
         )
         self.decoder3 = nn.Sequential(
-            nn.BatchNorm1d(8),
-            nn.Conv1d(in_channels=8,out_channels=out_channel,kernel_size=1),
+            nn.BatchNorm1d(16),
+            nn.Conv1d(in_channels=16,out_channels=out_channel,kernel_size=1),
             nn.Flatten(),
         )
     def forward(self, z):
-        batch_size = z.shape[0]
-        device = z.device
         x = self.decoder1(z)
         x = self.decoder2(x)
         x = self.decoder3(x)

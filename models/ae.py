@@ -28,7 +28,7 @@ class AE(BaseVAE):
         self.latent_dim = latent_dim
 
         self.encoder = Encoders[encoder](in_channels,in_dim)
-        self.decoder = Decoders[decoder](latent_dim=latent_dim,out_channel=1,out_dim=in_dim)
+        self.decoder = Decoders[decoder](latent_dim=latent_dim,out_channel=in_channels,out_dim=in_dim)
 
     def encode(self, input):
         x=input

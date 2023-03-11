@@ -61,11 +61,17 @@ def _check(header_file, recording_file):
     # Load the signal file.
     head, tail = os.path.split(header_file)
     signal_file = os.path.join(head, list(signal_files)[0])
-    data = np.asarray(sp.io.loadmat(signal_file)['val'])
+    try:
+        data = np.asarray(sp.io.loadmat(signal_file)['val'])
+    except:
+        print("broken .mat file")
+        return False
 
     # Check that the dimensions of the signal data in the signal file is consistent with the dimensions for the signal data given
     # in the header file.
     num_channels = len(channels)
+    num_channels = 18
+    num_samples = 30000
     if np.shape(data)!=(num_channels, num_samples):
         print('The header file {}'.format(header_file) \
             + ' is inconsistent with the dimensions of the signal file.')
@@ -81,6 +87,11 @@ def _check(header_file, recording_file):
             print('The checksum in header file {}'.format(header_file) \
                 + ' is inconsistent with the initial value for channel'.format(channels[i]))
             return False
+        if offsets[i]!=1:
+            print(f"wrong offset value {offsets[i]} ")
+        if gains[i]!=3:
+            print(f"wrong gain value {gains[i]}")
+
     return True
 
 
@@ -97,21 +108,25 @@ class Preprocesser:
         self.split = train_val_split
         self.eeg_segments_list = self._find_segments()
         self.num_patients = len(self.patient_folders)
+        print (self.num_patients)
         self._check_eegs()
 
     def _find_segments(self):
         eegs_file_lists = list()
         for p_folder in self.patient_folders:
             recording_meta_file = os.path.join(self.root,self.folder,p_folder,p_folder+".tsv")
-            recording_meta = load_text_file(recording_meta_file)
-            for quality_score, recording_id in zip(get_quality_scores(recording_meta), get_recording_ids(recording_meta)):
-                if recording_id == "nan":
-                    continue
-                if quality_score == "nan":
-                    print(quality_score, recording_id)
-                    continue
-                recording_file = os.path.join(p_folder,recording_id)
-                eegs_file_lists.append([recording_file,quality_score])
+            try:
+                recording_meta = load_text_file(recording_meta_file)
+                for quality_score, recording_id in zip(get_quality_scores(recording_meta), get_recording_ids(recording_meta)):
+                    if recording_id == "nan":
+                        continue
+                    if quality_score == "nan":
+                        print(quality_score, recording_id)
+                        continue
+                    recording_file = os.path.join(p_folder,recording_id)
+                    eegs_file_lists.append([recording_file,quality_score])
+            except:
+                continue
         return eegs_file_lists
 
     def _check_eegs(self):
@@ -127,9 +142,9 @@ class Preprocesser:
 
     def _train_val_split(self):
         eeg_train, eeg_val = train_test_split(self.eeg_segments_list,test_size=self.split)
-        np.savetxt(self.root+"/"+self.folder+"/all.txt", np.array(self.eeg_segments_list),fmt=str)
-        np.savetxt(self.root+"/"+self.folder+"/train.txt", np.array(eeg_train),fmt= str)
-        np.savetxt(self.root+"/"+self.folder+"/val.txt", np.array(eeg_val),fmt=str)
+        np.savetxt(self.root+"/"+self.folder+"/all.txt", np.array(self.eeg_segments_list),fmt="%s")
+        np.savetxt(self.root+"/"+self.folder+"/train.txt", np.array(eeg_train),fmt= "%s")
+        np.savetxt(self.root+"/"+self.folder+"/val.txt", np.array(eeg_val),fmt="%s")
 
 
 
@@ -138,6 +153,5 @@ if __name__ == "__main__":
     data_name="training"
     train_split_file = data_dir + "/" + data_name + "train.txt"
     val_split_file = data_dir + "/" + data_name + "val.txt"
-    if (not os.path.isfile(train_split_file)) or (not os.path.isfile(val_split_file)):
-        pre = Preprocesser(data_dir, data_name)
-        pre._train_val_split()
+    pre = Preprocesser(data_dir, data_name)
+    pre._train_val_split()

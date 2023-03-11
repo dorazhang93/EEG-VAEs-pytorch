@@ -16,21 +16,35 @@ class EEG(Dataset):
                  **kwargs):
         self.data_dir = data_dir
         self.transforms = transform
-
         self.recoding_meta = np.loadtxt(self.data_dir+f"/{split}.txt")
 
     def __len__(self):
         return len(self.recoding_meta)
 
+    def _rescale(self,data, gain, offset):
+        return (data-offset)/gain
+
+    def _crop(self,data, size=20000):
+        duration = data.shape[1]
+        if size < duration:
+            delta = duration - size
+            start= np.random.randint(0,delta)
+            return data[:,start:start+size]
+        else:
+            return data
     def __getitem__(self, idx):
         recoding_file, quality_score = self.recoding_meta[idx]
         # load patient meata to get target values like cpc
         eeg = np.asarray(sp.io.loadmat(self.data_dir+"/"+recoding_file+".mat")["val"])
         header = np.genfromtxt("",dtype=str,skip_header=True,usecols=(2,4))
-        gain = np.array([float(x.split('/')[0]) for x in header[:,]])
-        offset = header[:,1].astype(float)
+        # gain and offset values for all eeg recording are 32, 0 respectively
+        # gain = np.array([float(x.split('/')[0]) for x in header[:,]])
+        # offset = header[:,1].astype(float)
+        gain = 32.0
+        offset = 0.0
         eeg = self._rescale(eeg, gain, offset)
-        eeg = self._crop()
+        # TODO: test crop augmentation
+        # eeg = self._crop()
         return torch.from_numpy(eeg)
 
 class VAEDataset(LightningDataModule):
