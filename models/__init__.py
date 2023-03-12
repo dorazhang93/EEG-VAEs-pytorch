@@ -1,4 +1,4 @@
 from .base import *
-from .geno_cae import *
+from .ae import *
 
 vae_models = {'AE':AE}

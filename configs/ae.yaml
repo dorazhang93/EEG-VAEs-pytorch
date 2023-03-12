@@ -1,5 +1,5 @@
 model_params:
-  name: 'GenoCAE'
+  name: 'AE'
   in_channels: 18
   latent_dim: 5
   in_dim: 30000
@@ -11,8 +11,8 @@ model_params:
 
 
 data_params:
-  data_path: "/home/etlar/daqu/Projects/genome/data/aDNA/new_data_1Feb_Daqu/TPS2_slim/"
-  data_name: "TPS2_mind5_ex_2233modern_maf05MF"
+  data_path: "/home/daqu/Projects/Physionet/physionet.org/files/i-care/1.0"
+  data_name: "training"
   train_batch_size: 48
   val_batch_size:  40
   num_workers: 4
