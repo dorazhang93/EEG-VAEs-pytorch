@@ -16,7 +16,7 @@ class EEG(Dataset):
                  **kwargs):
         self.data_dir = data_dir
         self.transforms = transform
-        self.recoding_meta = np.loadtxt(self.data_dir+f"/{split}.txt")
+        self.recoding_meta = np.loadtxt(self.data_dir+f"/{split}.txt",dtype=str)
 
     def __len__(self):
         return len(self.recoding_meta)
@@ -33,14 +33,14 @@ class EEG(Dataset):
         else:
             return data
     def __getitem__(self, idx):
-        recoding_file, quality_score = self.recoding_meta[idx]
+        recording_file, quality_score = self.recoding_meta[idx]
         # load patient meata to get target values like cpc
-        eeg = np.asarray(sp.io.loadmat(self.data_dir+"/"+recoding_file+".mat")["val"])
-        header = np.genfromtxt("",dtype=str,skip_header=True,usecols=(2,4))
+        eeg = np.asarray(sp.io.loadmat(self.data_dir+"/"+recording_file+".mat")["val"])
+        # header = np.genfromtxt("",dtype=str,skip_header=True,usecols=(2,4))
         # gain and offset values for all eeg recording are 32, 0 respectively
         # gain = np.array([float(x.split('/')[0]) for x in header[:,]])
         # offset = header[:,1].astype(float)
-        gain = 32.0
+        gain = 32000
         offset = 0.0
         eeg = self._rescale(eeg, gain, offset)
         # TODO: test crop augmentation
@@ -50,7 +50,6 @@ class EEG(Dataset):
 class VAEDataset(LightningDataModule):
     def __init__(self,
                  data_path: str,
-                 data_name: str,
                  train_batch_size: int = 64,
                  val_batch_size: int = 64,
                  num_workers: int = 0,
@@ -59,37 +58,42 @@ class VAEDataset(LightningDataModule):
         super().__init__()
 
         self.data_dir = data_path
-        self.data_name = data_name
         self.train_batch_size = train_batch_size
         self.val_batch_size = val_batch_size
         self.num_workers = num_workers
         self.pin_memory = pin_memory
+        self.prepare_data()
+
     def prepare_data(self):
-        train_split_file = self.data_dir + "/" +self.data_name +"train.txt"
-        val_split_file = self.data_dir + "/" +self.data_name +"val.txt"
+        train_split_file = self.data_dir + "/" +"train.txt"
+        val_split_file = self.data_dir + "/" +"val.txt"
         if (not os.path.isfile(train_split_file)) or (not os.path.isfile(val_split_file)):
-            pre = Preprocesser(self.data_dir,self.data_name)
+            print ("starting data processing")
+            pre = Preprocesser(self.data_dir)
             pre._train_val_split()
-        pass
+            pre._min_max()
+        else:
+            print(f"{train_split_file} already exists")
     def setup(self,stage=None):
+        print(f" set dataset up for  {stage}")
         if stage=="predict":
             self.all_dataset = EEG(
-            self.data_dir + self.data_name,
+            self.data_dir ,
             split="all",
             )
             return
         elif stage=="fit":
             self.train_dataset = EEG(
-            self.data_dir+self.data_name,
+            self.data_dir,
             split="train",
             )
             self.val_dataset = EEG(
-            self.data_dir + self.data_name,
+            self.data_dir,
             split="val",
             )
         elif stage=="test":
             self.val_dataset = EEG(
-            self.data_dir + self.data_name,
+            self.data_dir,
             split="val",
             )
         else:

@@ -29,4 +29,8 @@ def load_config(argv=None):
             print(exc)
     config_name = Path(args.filename).stem
     out_dir = get_path(config['logging_params']['save_dir']+config["data_params"]["data_name"]+"/"+config['model_params']['name']+"/"+config_name)
+    print("%%% loaded config file %%%")
+    print(config)
+    print("%%% output dir %%%")
+    print(out_dir)
     return config, out_dir, config_name

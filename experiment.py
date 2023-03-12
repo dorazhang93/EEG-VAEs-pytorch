@@ -34,10 +34,10 @@ class VAEXperiment(pl.LightningModule):
         return self.model(input, **kwargs)
 
     def training_step(self, batch, batch_idx, optimizer_idx = 0):
-        genotypes = batch
-        self.curr_device = genotypes.device
+        input = batch
+        self.curr_device = input.device
 
-        results = self.forward(genotypes)
+        results = self.forward(input)
         train_loss = self.model.loss_function(*results,
                                               optimizer_idx=optimizer_idx,
                                               batch_idx = batch_idx)
@@ -47,10 +47,10 @@ class VAEXperiment(pl.LightningModule):
         return train_loss['loss']
 
     def validation_step(self, batch, batch_idx, optimizer_idx = 0):
-        genotypes = batch
-        self.curr_device = genotypes.device
+        input = batch
+        self.curr_device = input.device
 
-        results = self.forward(genotypes)
+        results = self.forward(input)
         val_loss = self.model.loss_function(*results,
                                             optimizer_idx = optimizer_idx,
                                             batch_idx = batch_idx)

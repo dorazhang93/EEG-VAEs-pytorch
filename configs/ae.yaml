@@ -6,13 +6,12 @@ model_params:
   hidden_dim: 75
   noise_std: 0.032
   reg_factor: 1.0e-8
-  sparsify: 0.4
 
 
 
 data_params:
-  data_path: "/home/daqu/Projects/Physionet/physionet.org/files/i-care/1.0"
-  data_name: "training"
+  data_path: "/home/etlar/daqu/Projects/PhysioNet/physionet.org/files/i-care/1.0/training"
+  data_name: "EEg_segments_18ch"
   train_batch_size: 48
   val_batch_size:  40
   num_workers: 4

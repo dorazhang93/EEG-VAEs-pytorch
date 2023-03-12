@@ -13,32 +13,25 @@ class AE(BaseVAE):
                  in_channels: int,
                  in_dim: int,
                  latent_dim: int,
+                 hidden_dim: int,
                  encoder: str = "EncoderConv1D",
                  decoder: str = "DecoderConv1D",
                  noise_std: float = 0.032,
                  reg_factor: float = 1.0e-8,
                  missing_val: float = -1.0,
-                 sparsify: float = 0.4,
                  **kwargs):
         super(AE, self).__init__()
         self.noise_std = noise_std
         self.reg_factor = reg_factor
         self.missing_val = missing_val
-        self.sparsify = sparsify
         self.latent_dim = latent_dim
 
-        self.encoder = Encoders[encoder](in_channels,in_dim)
-        self.decoder = Decoders[decoder](latent_dim=latent_dim,out_channel=in_channels,out_dim=in_dim)
+        print(f"%%% building AE %%%")
+        self.encoder = Encoders[encoder](in_channels,in_dim,latent_dim=latent_dim,hidden_dim=hidden_dim)
+        self.decoder = Decoders[decoder](latent_dim=latent_dim,out_channel=in_channels,out_dim=in_dim,hidden_dim=hidden_dim)
 
     def encode(self, input):
         x=input
-        if self.training:
-            # sparsely drop value and replace it by -1.0
-            spar = self.sparsify * np.random.uniform()
-            msk = (np.random.random_sample(x.shape)<spar).astype(int)
-            x = x*(1-msk) + torch.ones(x.shape)*(-1.0)*msk
-        x = x.type(torch.float32)
-
         mu_logvar = self.encoder(x)
         mu, _ = mu_logvar.view(-1,self.latent_dim, 2).unbind(-1)
         return mu, _

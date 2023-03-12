@@ -10,8 +10,7 @@ from pytorch_lightning.plugins import DDPPlugin
 import os
 
 config, _, config_name = load_config()
-save_dir = config['logging_params']['save_dir'] + config["data_params"]["data_name"]
-tb_logger =  TensorBoardLogger(save_dir=save_dir,
+tb_logger =  TensorBoardLogger(save_dir=config['logging_params']['save_dir'],
                                name=config['model_params']['name'], version=config_name, configs=config)
 
 # For reproducibility
@@ -35,7 +34,7 @@ runner = Trainer(logger=tb_logger,
                  strategy=DDPPlugin(find_unused_parameters=False),
                  **config['trainer_params'])
 
-
+Path(tb_logger.log_dir).mkdir(exist_ok=True,parents=True)
 
 
 print(f"======= Training {config['model_params']['name']} =======")
